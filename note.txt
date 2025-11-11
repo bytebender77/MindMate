@@ -1,8 +1,0 @@
-Note: PyTorch is large (~2–3GB) and may take a few minutes on macOS ARM. If you want to avoid it, options:
-Use a CPU-only build (smaller but slower)
-Make the emotion analyzer optional (use API-based analysis)
-Use a lighter emotion analysis library
-The current setup uses a local transformers model, which requires PyTorch. If installation is slow or you prefer alternatives, I can adjust the setup.
-After installation, run the backend:
-python -m app.main
-The backend should start on http://localhost:8000.
