@@ -1,0 +1,51 @@
+services:
+  # Backend API Service
+  - type: web
+    name: mindmate-api
+    env: python
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: "False"
+      - key: REFLECTION_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: WHISPER_MODEL
+        value: whisper-1
+      # Note: Add these as Secret environment variables in Render Dashboard:
+      # - OPENAI_API_KEY (Secret)
+      # - GEMINI_API_KEY (Secret)
+      # - CORS_ORIGINS (update after frontend deployment)
+      # DATABASE_URL is automatically provided when database is linked
+
+  # PostgreSQL Database
+  - type: pg
+    name: mindmate-db
+    plan: starter
+    databaseName: mindmate
+    # DATABASE_URL is automatically provided to linked web services
+    # Database is automatically linked to web services in the same blueprint
+
+  # Frontend Static Site
+  - type: web
+    name: mindmate-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_URL
+        value: https://mindmate-api.onrender.com
+        # Update this URL after backend is deployed to match your actual backend URL
+      - key: NODE_VERSION
+        value: 20.17.0
+
