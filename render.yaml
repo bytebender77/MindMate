@@ -1,0 +1,52 @@
+services:
+  # Backend API Service
+  - type: web
+    name: mindmate-api
+    env: python
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn app.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: "False"
+      - key: REFLECTION_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: WHISPER_MODEL
+        value: whisper-1
+      # IMPORTANT: Add these as Secret environment variables in Render Dashboard:
+      # - OPENAI_API_KEY (Secret) - Required if using OpenAI
+      # - GEMINI_API_KEY (Secret) - Required if using Gemini
+      # - CORS_ORIGINS - Set after frontend deployment (e.g., "https://mindmate-frontend.onrender.com")
+      # 
+      # DATABASE SETUP:
+      # Option 1: Create PostgreSQL database manually in Render Dashboard
+      #   1. Go to Dashboard → New → PostgreSQL
+      #   2. Create database (free tier available)
+      #   3. Link it to this web service
+      #   4. DATABASE_URL will be automatically provided
+      # Option 2: Use SQLite (default)
+      #   - App will use SQLite if DATABASE_URL is not set
+      #   - Note: SQLite is not recommended for production
+
+  # Frontend Static Site
+  - type: web
+    name: mindmate-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    pullRequestPreviewsEnabled: false
+    envVars:
+      - key: VITE_API_URL
+        value: https://mindmate-api.onrender.com
+        # IMPORTANT: Update this URL after backend deployment to match your actual backend URL
+      - key: NODE_VERSION
+        value: 20.17.0
+
