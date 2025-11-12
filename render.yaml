@@ -1,12 +1,12 @@
 services:
   # Backend API Service (Free Tier)
+  # IMPORTANT: If Blueprint requires payment, deploy manually instead (see RENDER_MANUAL_DEPLOY.md)
   # Note: Free tier services spin down after 15 minutes of inactivity
   # First request after spin-down may take 30-60 seconds to respond
   - type: web
     name: mindmate-api
     env: python
-    # No plan specified = Free tier (512MB RAM, 0.1 CPU)
-    region: oregon
+    # Free tier - no plan specified (512MB RAM, 0.1 CPU)
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && gunicorn app.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
     healthCheckPath: /health
